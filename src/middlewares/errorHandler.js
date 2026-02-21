@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import ErroBase from "../errors/ErroBase.js";
 
 function errorHandler(erro, req, res, next) {
   if (erro instanceof mongoose.Error.CastError) {
@@ -12,7 +13,7 @@ function errorHandler(erro, req, res, next) {
 
     res.status(400).send({ message: `Ocorreram estes erros de validação de dados: ${mensagensErro}` });
   } else {
-    res.status(500).send({ message: "Erro interno do servidor" });
+    new ErroBase().enviarResposta(res);
   }
 }
 

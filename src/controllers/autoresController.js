@@ -1,3 +1,4 @@
+import NaoEncontrado from "../errors/NaoEncontrado.js";
 import autores from "../models/Autor.js";
 
 class AutorController {
@@ -8,7 +9,8 @@ class AutorController {
       if (autoresResultado !== null) {
         res.status(200).json(autoresResultado);
       } else {
-        res.status(404).json({ message: "Não foram encontrados autores" });
+        const erro404 = new NaoEncontrado("Não foram encontrados autores");
+        next(erro404);
       }
     } catch (erro) {
       next(erro);
@@ -24,7 +26,8 @@ class AutorController {
       if (autorResultado !== null) {
         res.status(200).send(autorResultado);
       } else {
-        res.status(404).send({ message: "ID do autor não localizado" });
+        const erro404 = new NaoEncontrado("ID do autor não localizado");
+        next(erro404);
       }
     } catch (erro) {
       next(erro);

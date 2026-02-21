@@ -1,8 +1,8 @@
+import NaoEncontrado from "../errors/NaoEncontrado.js";
+
 function handler404(req, res, next) {
-  res.status(404).send({
-    mensagem: "Página não encontrada",
-    status: 404,
-  });
+  const erro404 = new NaoEncontrado();
+  next(erro404);
 }
 
 export default handler404;

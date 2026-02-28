@@ -84,13 +84,19 @@ class LivroController {
     try {
       const filtro = await processarBusca(req.query);
 
-      const livrosResultado = await livros.find(filtro);
+      const filtroVazio = Object.keys(filtro).length === 0;
 
-      if (livrosResultado !== null && livrosResultado.length > 0) {
-        res.status(200).send(livrosResultado);
+      if (!filtroVazio) {
+        const livrosResultado = await livros.find(filtro);
+
+        if (livrosResultado !== null && livrosResultado.length > 0) {
+          res.status(200).send(livrosResultado);
+        } else {
+          const erro404 = new NaoEncontrado("Nenhum livro foi localizado com esses parâmetros");
+          next(erro404);
+        }
       } else {
-        const erro404 = new NaoEncontrado("Nenhum livro foi localizado com esses parâmetros");
-        next(erro404);
+        res.status(200).send([]);
       }
     } catch (erro) {
       next(erro);
@@ -124,7 +130,7 @@ async function processarBusca(parametros) {
     if (autor !== null) {
       filtro.$or = [{ autor: autor._id }, { "autor._id": autor._id }];
     } else {
-      return null;
+      filtro.autor = "123456789012345678901234"; // generic ObjectId, a 24-character hexadecimal string value
     }
   }
 

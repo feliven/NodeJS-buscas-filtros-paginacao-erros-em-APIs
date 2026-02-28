@@ -1,5 +1,5 @@
 import NaoEncontrado from "../errors/NaoEncontrado.js";
-import { livros } from "../models/index.js";
+import { autores, livros } from "../models/index.js";
 
 class LivroController {
   static listarLivros = async (req, res, next) => {
@@ -82,22 +82,7 @@ class LivroController {
 
   static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const { editora, titulo, minPaginas, maxPaginas, precoMin, precoMax } = req.query;
-
-      const regexTitulo = new RegExp(titulo, "i");
-
-      const filtro = {};
-
-      if (titulo) filtro.titulo = regexTitulo;
-      if (editora) filtro.editora = { $regex: editora, $options: "i" }; // operadores do Mongoose
-
-      if (minPaginas || maxPaginas) filtro.paginas = {};
-      if (minPaginas) filtro.paginas.$gte = minPaginas;
-      if (maxPaginas) filtro.paginas.$lte = maxPaginas;
-
-      if (precoMin || precoMax) filtro.preco = {};
-      if (precoMin) filtro.preco.$gte = precoMin;
-      if (precoMax) filtro.preco.$lte = precoMax;
+      const filtro = await processarBusca(req.query);
 
       const livrosResultado = await livros.find(filtro);
 
@@ -111,6 +96,41 @@ class LivroController {
       next(erro);
     }
   };
+}
+
+async function processarBusca(parametros) {
+  const { editora, titulo, minPaginas, maxPaginas, precoMin, precoMax, nomeAutor } = parametros;
+
+  const regexTitulo = new RegExp(titulo, "i");
+
+  const filtro = {};
+
+  if (titulo) filtro.titulo = regexTitulo;
+  if (editora) filtro.editora = { $regex: editora, $options: "i" }; // operadores do Mongoose
+
+  if (minPaginas || maxPaginas) filtro.paginas = {};
+  if (minPaginas) filtro.paginas.$gte = minPaginas;
+  if (maxPaginas) filtro.paginas.$lte = maxPaginas;
+
+  if (precoMin || precoMax) filtro.preco = {};
+  if (precoMin) filtro.preco.$gte = precoMin;
+  if (precoMax) filtro.preco.$lte = precoMax;
+
+  if (nomeAutor) {
+    const autor = await autores.findOne({
+      nome: { $regex: nomeAutor, $options: "i" },
+    });
+
+    if (autor !== null) {
+      filtro.$or = [{ autor: autor._id }, { "autor._id": autor._id }];
+    } else {
+      return null;
+    }
+  }
+
+  // em alguns documentos o campo autor está embutido como subdocumento ({ _id, nome, ... }), então { autor: ObjectId } não casa com esse formato — é preciso comparar "autor._id".
+
+  return filtro;
 }
 
 export default LivroController;

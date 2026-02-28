@@ -91,39 +91,13 @@ class LivroController {
       if (titulo) filtro.titulo = regexTitulo;
       if (editora) filtro.editora = { $regex: editora, $options: "i" }; // operadores do Mongoose
 
-      if (minPaginas && maxPaginas) {
-        filtro.paginas = {
-          $gte: Number(minPaginas),
-          $lte: Number(maxPaginas),
-        };
-      }
-      if (minPaginas && !maxPaginas) {
-        filtro.paginas = {
-          $gte: Number(minPaginas),
-        };
-      }
-      if (!minPaginas && maxPaginas) {
-        filtro.paginas = {
-          $lte: Number(maxPaginas),
-        };
-      }
+      if (minPaginas || maxPaginas) filtro.paginas = {};
+      if (minPaginas) filtro.paginas.$gte = minPaginas;
+      if (maxPaginas) filtro.paginas.$lte = maxPaginas;
 
-      if (precoMin && precoMax) {
-        filtro.preco = {
-          $gte: Number(precoMin),
-          $lte: Number(precoMax),
-        };
-      }
-      if (precoMin && !precoMax) {
-        filtro.preco = {
-          $gte: Number(precoMin),
-        };
-      }
-      if (!precoMin && precoMax) {
-        filtro.preco = {
-          $lte: Number(precoMax),
-        };
-      }
+      if (precoMin || precoMax) filtro.preco = {};
+      if (precoMin) filtro.preco.$gte = precoMin;
+      if (precoMax) filtro.preco.$lte = precoMax;
 
       const livrosResultado = await livros.find(filtro);
 

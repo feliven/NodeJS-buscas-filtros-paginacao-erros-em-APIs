@@ -80,16 +80,21 @@ class LivroController {
     }
   };
 
-  static listarLivroPorEditora = async (req, res, next) => {
+  static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const editora = req.query.editora;
+      const { editora, titulo } = req.query;
 
-      const livrosResultado = await livros.find({ editora: editora });
+      const filtro = {};
+
+      if (editora) filtro.editora = editora;
+      if (titulo) filtro.titulo = titulo;
+
+      const livrosResultado = await livros.find(filtro);
 
       if (livrosResultado !== null && livrosResultado.length > 0) {
         res.status(200).send(livrosResultado);
       } else {
-        const erro404 = new NaoEncontrado("Editora não localizada");
+        const erro404 = new NaoEncontrado("Nenhum livro foi localizado com esses parâmetros");
         next(erro404);
       }
     } catch (erro) {

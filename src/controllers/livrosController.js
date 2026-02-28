@@ -84,10 +84,12 @@ class LivroController {
     try {
       const { editora, titulo } = req.query;
 
+      const regexTitulo = new RegExp(titulo, "i");
+
       const filtro = {};
 
-      if (editora) filtro.editora = editora;
-      if (titulo) filtro.titulo = titulo;
+      if (editora) filtro.editora = { $regex: editora, $options: "i" }; // operadores do Mongoose
+      if (titulo) filtro.titulo = regexTitulo;
 
       const livrosResultado = await livros.find(filtro);
 

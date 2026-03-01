@@ -4,14 +4,19 @@ import { autores } from "../models/index.js";
 class AutorController {
   static listarAutores = async (req, res, next) => {
     try {
-      const autoresResultado = await autores.find();
+      const queryBuscaAutores = autores.find();
+      req.queryBusca = queryBuscaAutores;
 
-      if (autoresResultado !== null) {
-        res.status(200).json(autoresResultado);
-      } else {
-        const erro404 = new NaoEncontrado("Não foram encontrados autores");
-        next(erro404);
-      }
+      next();
+
+      // const autoresResultado = await autores.find();
+
+      // if (autoresResultado !== null) {
+      //   res.status(200).json(autoresResultado);
+      // } else {
+      //   const erro404 = new NaoEncontrado("Não foram encontrados autores");
+      //   next(erro404);
+      // }
     } catch (erro) {
       next(erro);
     }

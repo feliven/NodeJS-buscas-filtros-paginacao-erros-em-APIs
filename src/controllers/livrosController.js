@@ -103,19 +103,15 @@ class LivroController {
 
   static listarLivroPorFiltro = async (req, res, next) => {
     try {
-      const filtro = await processarBusca(req.query);
+      const filtro = await tratarParametrosDeBusca(req.query);
 
       const filtroVazio = Object.keys(filtro).length === 0;
 
       if (!filtroVazio) {
-        const livrosResultado = await livros.find(filtro);
+        const queryBuscaLivros = livros.find(filtro).populate("autor");
+        req.queryBusca = queryBuscaLivros;
 
-        if (livrosResultado !== null && livrosResultado.length > 0) {
-          res.status(200).send(livrosResultado);
-        } else {
-          const erro404 = new NaoEncontrado("Nenhum livro foi localizado com esses parâmetros");
-          next(erro404);
-        }
+        next(); // roda paginador
       } else {
         res.status(200).send([]);
       }
@@ -125,7 +121,7 @@ class LivroController {
   };
 }
 
-async function processarBusca(parametros) {
+async function tratarParametrosDeBusca(parametros) {
   const { editora, titulo, minPaginas, maxPaginas, precoMin, precoMax, nomeAutor } = parametros;
 
   const regexTitulo = new RegExp(titulo, "i");

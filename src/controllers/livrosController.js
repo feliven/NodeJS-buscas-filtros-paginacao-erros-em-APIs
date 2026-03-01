@@ -1,39 +1,38 @@
 import NaoEncontrado from "../errors/NaoEncontrado.js";
-import RequisicaoIncorreta from "../errors/RequisicaoIncorreta.js";
 import { autores, livros } from "../models/index.js";
 
 class LivroController {
   static listarLivros = async (req, res, next) => {
     try {
-      let { limite = 5, pagina = 1, ordenacao = "_id:-1" } = req.query;
+      const queryBuscaLivros = livros.find();
+      req.queryBusca = queryBuscaLivros;
 
-      let [campoOrdenacao, ordem] = ordenacao.split(":");
+      next(); // roda paginador
 
-      limite = parseInt(limite);
-      pagina = parseInt(pagina);
-      ordem = parseInt(ordem);
-
-      if (limite > 0 && pagina > 0) {
-        const livrosResultado = await livros
-          .find()
-          .collation({ locale: "pt", strength: 2 }) // strength 2 ignores case
-          .sort({ [campoOrdenacao]: ordem })
-          .skip((pagina - 1) * limite)
-          .limit(limite)
-          .populate("autor")
-          .exec();
-
-        // MongoDB sorts strings case-sensitively by default (uppercase letters come before lowercase), so "Novena" will sort before "morro…"
-
-        if (livrosResultado !== null) {
-          res.status(200).json(livrosResultado);
-        } else {
-          const erro404 = new NaoEncontrado("Não foram encontrados livros");
-          next(erro404);
-        }
-      } else {
-        next(new RequisicaoIncorreta());
-      }
+      // let { limite = 5, pagina = 1, ordenacao = "_id:-1" } = req.query;
+      // let [campoOrdenacao, ordem] = ordenacao.split(":");
+      // limite = parseInt(limite);
+      // pagina = parseInt(pagina);
+      // ordem = parseInt(ordem);
+      // if (limite > 0 && pagina > 0) {
+      //   const livrosResultado = await livros
+      //     .find()
+      //     .collation({ locale: "pt", strength: 2 }) // strength 2 ignores case
+      //     .sort({ [campoOrdenacao]: ordem })
+      //     .skip((pagina - 1) * limite)
+      //     .limit(limite)
+      //     .populate("autor")
+      //     .exec();
+      //   // MongoDB sorts strings case-sensitively by default (uppercase letters come before lowercase), so "Novena" will sort before "morro…"
+      //   if (livrosResultado !== null) {
+      //     res.status(200).json(livrosResultado);
+      //   } else {
+      //     const erro404 = new NaoEncontrado("Não foram encontrados livros");
+      //     next(erro404);
+      //   }
+      // } else {
+      //   next(new RequisicaoIncorreta());
+      // }
     } catch (erro) {
       next(erro);
     }

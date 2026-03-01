@@ -7,6 +7,22 @@ import handler404 from "./middlewares/handler404.js";
 db.on("error", console.log.bind(console, "Erro de conexão"));
 db.once("open", () => {
   console.log("conexão com o banco feita com sucesso");
+
+  // let teste = {};
+  // console.log(teste);
+
+  // teste.propriedade = 1;
+  // console.log(teste);
+
+  // teste.query = {};
+  // console.log(teste);
+
+  // teste.query.nome = "nome da query";
+
+  // teste.alo = "ola";
+
+  // console.log(teste);
+  // console.log(teste.query);
 });
 
 const app = express();
